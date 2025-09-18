@@ -7,7 +7,7 @@ public class MackShop {
 
         // CÁTALOGOS DE PRODUTOS
 
-        // static boolean baseInicializada = false; // Verifica se a base está iniciada.
+        // static boolean baseInicializada = false;
 
         int idsProdutos[] = new int[50]; // Armazena os códigos numéricos únicos de cada produto.
         String nomesProdutos[] = new String[50]; // Armazena as descrições dos produtos.
