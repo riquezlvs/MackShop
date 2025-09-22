@@ -229,8 +229,20 @@ public class MackShop {
         }
     }
 
-    public static void finalizarVenda(int[] vendaAtualIds) {
-        //for(int i = 0; i);
+    public static void finalizarVenda(int[] historicoIdsPedidos, double historicoValoresPedidos[], int[] idsProdutos) {
+        boolean compra = true;
+
+        while(compra == true) {
+            for(int i = 0; i < idsProdutos.length; i++) {
+                if(idsProdutos[i] != 0) {
+                    int idPedido = idsProdutos[i] + 1;
+                    historicoIdsPedidos[i] = idPedido;
+                    historicoValoresPedidos[i] = idPedido;
+                    break;
+                }
+            }
+
+        }
     }
 
     //(admin) Repor Estoque
