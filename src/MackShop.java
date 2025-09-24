@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.Random;
 
 public class MackShop {
 
@@ -81,6 +82,7 @@ public class MackShop {
                             VerResumoVendaAtual(ids, nomes, precos, vendaAtualIds,  vendaAtualQuantidades);
                             break;
                         case 5:
+                            finalizarVenda(historicoIdsPedidos, historicoValoresPedidos, vendaAtualIds, ids, nomes, precos, vendaAtualQuantidades);
                             break;
                         case 6:
                             break;
@@ -201,7 +203,7 @@ public class MackShop {
     }
 
     // VER RESUMO DA VENDA ATUAL
-    public static void VerResumoVendaAtual(int[] id, String[] nome, double[] preco, int[] vendaAtualIds, int[] vendaAtualQuantidades) {
+    public static double VerResumoVendaAtual(int[] id, String[] nome, double[] preco, int[] vendaAtualIds, int[] vendaAtualQuantidades) {
         double totalVenda = 0;
         boolean vendaVazia = true;
 
@@ -227,29 +229,46 @@ public class MackShop {
             System.out.printf("TOTAL DA VENDA: R$ %.2f\n", totalVenda);
             System.out.println("----------------------------------------");
         }
+        return totalVenda;
     }
 
-    public static void finalizarVenda(int[] historicoIdsPedidos, double historicoValoresPedidos[], int[] idsProdutos) {
-        boolean compra = true;
+    //FINALIZAR VENDA
+    public static void finalizarVenda(int [][] historicoItensVendidos, int[] idsProdutos, int[] historicoIdsPedidos, double[] historicoValoresPedidos, int[] vendaAtualIds, int[] id, String[] nome, double[] preco, int[] vendaAtualQuantidades) {
+        int novoId;
+        double valorTotalVendaId;
+        boolean existe = true;
 
-        while(compra == true) {
-            for(int i = 0; i < idsProdutos.length; i++) {
-                if(idsProdutos[i] != 0) {
-                    int idPedido = idsProdutos[i] + 1;
-                    historicoIdsPedidos[i] = idPedido;
-                    historicoValoresPedidos[i] = idPedido;
+        valorTotalVendaId = VerResumoVendaAtual(id, nome, preco, vendaAtualIds, vendaAtualQuantidades);
+
+        while(existe==true) {
+            for(int i=0; i<vendaAtualIds.length;i++){
+                if(vendaAtualIds[i] == 0){
+                    novoId = i;
+                    historicoIdsPedidos[i] = novoId;
+                    historicoValoresPedidos[i] = valorTotalVendaId;
+                    System.out.println(historicoIdsPedidos[i]);
+                    System.out.println(historicoValoresPedidos[i]);
                     break;
                 }
             }
 
+            for(int j=0; j<historicoItensVendidos.length; j++){
+                for(int k=0; k<historicoItensVendidos[j].length; k++){
+                    historicoItensVendidos[j][0] = historicoIdsPedidos[j];
+                    historicoItensVendidos[j][1] = idsProdutos[j];
+                    historicoItensVendidos[j][2] = vendaAtualQuantidades[j];
+                }
+            System.out.println(historicoItensVendidos[j][0]);
+            }
+            existe = false;
         }
-    }
+    }    
 
     //(admin) Repor Estoque
     public static void reporEstoque(Scanner scanner, int[] id, int[] estoque){
         System.out.println("Digite o ID do item que deseja repor: ");
         int IdVenda = scanner.nextInt();
-        System.out.println("Digite a quantidade que deseja repor no estoque");
+        System.out.println("Digite a quantidade que deseja repor no estoque: ");
         int quantidadeVenda = scanner.nextInt();
         boolean itemEncontrado = false;
 
@@ -282,25 +301,25 @@ public class MackShop {
         }
     }
 
-    //Nota fiscal
-    public static void emitirNotaFiscal(){
-        System.out.println("*********************************************************************************************");
-        System.out.printf("* %-90s*\n", "MACKSHOP");
-        System.out.printf("* %-90s*\n", "CNPJ: 12.345.678/0001-99" );
-        System.out.println("*********************************************************************************************");
-        System.out.printf("* %-90s*\n", "NOTA FISCAL - VENDA AO CONSUMIDOR");
-        System.out.printf("* %-90s*\n", "Pedido ID: " + pedidoId);
-        System.out.printf("* %-90s*\n", "Data de Emissão:  01/09/2025 15:15:30 ");
-        System.out.println("*********************************************************************************************");
-        System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-12s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
-        System.out.println("-----------------------------------------------------------------------------------------------------------");
-        //Colocar isso dentro do for quando o metodo historico for criado
-            System.out.printf("* %-2d| %-5d| %-20s| %-5d| R$ %-8.2f| R$ %-8.2f*\n", 1, id, nome, quantidade, preco, totalProduto);
-        System.out.println("-----------------------------------------------------------------------------------------------------------");
-        System.out.printf("* %-76sR$ %-8.2f *\n", "SUBTOTAL", subtotal);
-        System.out.printf("* %-76sR$ %-8.2f *\n", "TOTAL", total);
-        System.out.println("*********************************************************************************************");
-        System.out.printf("* %-90s*\n", "OBRIGADO PELA PREFERÊNCIA! VOLTE SEMPRE!");
-        System.out.println("*********************************************************************************************");
-    }
+        //Nota fiscal
+//    public static void emitirNotaFiscal(){
+//        System.out.println("*********************************************************************************************");
+//        System.out.printf("* %-90s*\n", "MACKSHOP");
+ //       System.out.printf("* %-90s*\n", "CNPJ: 12.345.678/0001-99" );
+ //       System.out.println("*********************************************************************************************");
+ //       System.out.printf("* %-90s*\n", "NOTA FISCAL - VENDA AO CONSUMIDOR");
+  //      System.out.printf("* %-90s*\n", "Pedido ID: " + pedidoId);
+ //       System.out.printf("* %-90s*\n", "Data de Emissão:  01/09/2025 15:15:30 ");
+  //      System.out.println("*********************************************************************************************");
+ //       System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-12s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
+   //     System.out.println("-----------------------------------------------------------------------------------------------------------");
+ //       //Colocar isso dentro do for quando o metodo historico for criado
+ //           System.out.printf("* %-2d| %-5d| %-20s| %-5d| R$ %-8.2f| R$ %-8.2f*\n", 1, id, nome, quantidade, preco, totalProduto);
+ //       System.out.println("-----------------------------------------------------------------------------------------------------------");
+ //       System.out.printf("* %-76sR$ %-8.2f *\n", "SUBTOTAL", subtotal);
+  //      System.out.printf("* %-76sR$ %-8.2f *\n", "TOTAL", total);
+  //      System.out.println("*********************************************************************************************");
+  //      System.out.println("*********************************************************************************************");
+  //  }
 }
+
