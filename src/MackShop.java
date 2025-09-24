@@ -82,11 +82,12 @@ public class MackShop {
                             VerResumoVendaAtual(ids, nomes, precos, vendaAtualIds,  vendaAtualQuantidades);
                             break;
                         case 5:
-                            finalizarVenda(historicoIdsPedidos, historicoValoresPedidos, vendaAtualIds, ids, nomes, precos, vendaAtualQuantidades);
-                            break;
+                            finalizarVenda(historicoItensVendidos, historicoIdsPedidos, historicoValoresPedidos, vendaAtualIds, ids, nomes, precos, vendaAtualQuantidades, estoque);                            break;
                         case 6:
+                            verHistoricoVendas(historicoIdsPedidos, historicoValoresPedidos);
                             break;
                         case 7:
+                            buscarVendaEspecifica(scanner, historicoIdsPedidos, historicoValoresPedidos, historicoItensVendidos, ids, nomes, precos);
                             break;
                         case 8:
                             reporEstoque(scanner, ids, estoque);
@@ -233,36 +234,110 @@ public class MackShop {
     }
 
     //FINALIZAR VENDA
-    public static void finalizarVenda(int [][] historicoItensVendidos, int[] idsProdutos, int[] historicoIdsPedidos, double[] historicoValoresPedidos, int[] vendaAtualIds, int[] id, String[] nome, double[] preco, int[] vendaAtualQuantidades) {
-        int novoId;
-        double valorTotalVendaId;
-        boolean existe = true;
+    public static void finalizarVenda(int [][] historicoItensVendidos, int[] historicoIdsPedidos, double[] historicoValoresPedidos, int[] vendaAtualIds, int[] id, String[] nome, double[] preco, int[] vendaAtualQuantidades, int[] estoque) {
+        double totalVenda = 0;
+        boolean vendaVazia = true;
 
-        valorTotalVendaId = VerResumoVendaAtual(id, nome, preco, vendaAtualIds, vendaAtualQuantidades);
-
-        while(existe==true) {
-            for(int i=0; i<vendaAtualIds.length;i++){
-                if(vendaAtualIds[i] == 0){
-                    novoId = i;
-                    historicoIdsPedidos[i] = novoId;
-                    historicoValoresPedidos[i] = valorTotalVendaId;
-                    System.out.println(historicoIdsPedidos[i]);
-                    System.out.println(historicoValoresPedidos[i]);
-                    break;
+        for(int i = 0; i < vendaAtualIds.length; i++ ){
+            if(vendaAtualIds[i] != 0){
+                vendaVazia = false;
+                for(int j = 0; j < id.length; j++ ) {
+                    if(id[j] == vendaAtualIds[i]){
+                        totalVenda += preco[j] * vendaAtualQuantidades[i];
+                        estoque[j] -= vendaAtualQuantidades[i];
+                        break;
+                    }
                 }
             }
-
-            for(int j=0; j<historicoItensVendidos.length; j++){
-                for(int k=0; k<historicoItensVendidos[j].length; k++){
-                    historicoItensVendidos[j][0] = historicoIdsPedidos[j];
-                    historicoItensVendidos[j][1] = idsProdutos[j];
-                    historicoItensVendidos[j][2] = vendaAtualQuantidades[j];
-                }
-            System.out.println(historicoItensVendidos[j][0]);
-            }
-            existe = false;
         }
-    }    
+
+        if (vendaVazia) {
+            System.out.println("Não é possível finalizar uma venda vazia.");
+            return;
+        }
+
+        int proximaPosicaoHistoricoPedido = -1;
+        for (int i = 0; i < historicoIdsPedidos.length; i++) {
+            if (historicoIdsPedidos[i] == 0) {
+                proximaPosicaoHistoricoPedido = i;
+                break;
+            }
+        }
+        int novoIdPedido = proximaPosicaoHistoricoPedido + 1;
+
+        historicoIdsPedidos[proximaPosicaoHistoricoPedido] = novoIdPedido;
+        historicoValoresPedidos[proximaPosicaoHistoricoPedido] = totalVenda;
+
+        int proximaPosicaoHistoricoItem = -1;
+        for (int i = 0; i < vendaAtualIds.length; i++) {
+            if (vendaAtualIds[i] != 0) {
+                for (int j = 0; j < historicoItensVendidos.length; j++) {
+                    if (historicoItensVendidos[j][0] == 0) {
+                        proximaPosicaoHistoricoItem = j;
+                        break;
+                    }
+                }
+
+                if (proximaPosicaoHistoricoItem != -1) {
+                    historicoItensVendidos[proximaPosicaoHistoricoItem][0] = novoIdPedido;
+                    historicoItensVendidos[proximaPosicaoHistoricoItem][1] = vendaAtualIds[i];
+                    historicoItensVendidos[proximaPosicaoHistoricoItem][2] = vendaAtualQuantidades[i];
+                }
+            }
+        }
+        imprimirNotaFiscal(novoIdPedido, totalVenda, vendaAtualIds, vendaAtualQuantidades, id, nome, preco);
+
+        for (int i = 0; i < vendaAtualIds.length; i++) {
+            vendaAtualIds[i] = 0;
+            vendaAtualQuantidades[i] = 0;
+        }
+    }
+
+    //VER HISTÓRICO DE VENDAS
+
+    public static void verHistoricoVendas(int[] historicoIdsPedidos, double[] historicoValoresPedidos) {
+        for (int i = 0; i < historicoIdsPedidos.length; i++) {
+            if (historicoIdsPedidos[i] != 0) {
+                System.out.println("Pedido ID: " + historicoIdsPedidos[i] + " - Valor Total: R$ " + historicoValoresPedidos[i]);
+            }
+        }
+    }
+
+    // Busca venda especifica do historico
+    public static void buscarVendaEspecifica(Scanner scanner, int[] historicoIdsPedidos, double[] historicoValoresPedidos, int[][] historicoItensVendidos, int[] idsCatalogo, String[] nomesCatalogo, double[] precosCatalogo){
+        System.out.print("Digite o ID do pedido que deseja buscar: ");
+        int idPedidoBusca = scanner.nextInt();
+        boolean pedidoEncontrado = false;
+
+        for (int i = 0; i < historicoIdsPedidos.length; i++) {
+            if (historicoIdsPedidos[i] == idPedidoBusca) {
+                pedidoEncontrado = true;
+                System.out.println("--- DETALHES DO PEDIDO ID: " + idPedidoBusca + " ---");
+                System.out.println("Valor Total: R$ " + historicoValoresPedidos[i]);
+                System.out.println("Itens:");
+
+                for (int j = 0; j < historicoItensVendidos.length; j++) {
+                    if (historicoItensVendidos[j][0] == idPedidoBusca) {
+                        int idProdutoVendido = historicoItensVendidos[j][1];
+                        int quantidadeVendida = historicoItensVendidos[j][2];
+
+                        for (int k = 0; k < idsCatalogo.length; k++) {
+                            if (idsCatalogo[k] == idProdutoVendido) {
+                                double precoItem = precosCatalogo[k];
+                                System.out.printf("  - %s (ID: %d) | Qtd: %d | Subtotal: R$ %.2f\n", nomesCatalogo[k], idProdutoVendido, quantidadeVendida, precoItem * quantidadeVendida);
+                                break;
+                            }
+                        }
+                    }
+                }
+                System.out.println("----------------------------------------");
+                break;
+            }
+        }
+        if (!pedidoEncontrado) {
+            System.out.println("Pedido com ID " + idPedidoBusca + " não encontrado no histórico.");
+        }
+    }
 
     //(admin) Repor Estoque
     public static void reporEstoque(Scanner scanner, int[] id, int[] estoque){
@@ -285,41 +360,59 @@ public class MackShop {
         }
     }
 
-    //(admin)  Relatório de estoque baixo
-    public static void relatorioEstoqueBaixo(int[] ids, String[] nomes , int[] estoque){
+    public static void relatorioEstoqueBaixo(int[] ids, String[] nomes, int[] estoque) {
         System.out.println("--- PRODUTOS COM BAIXO ESTOQUE ---");
         System.out.println("----------------------------------------");
         boolean itemEncontrado = false;
-        for (int j = 0; j < ids.length; j++ ) {
+        for (int j = 0; j < ids.length; j++) {
             if (estoque[j] < 10 && estoque[j] > 0) {
                 itemEncontrado = true;
-                System.out.printf("ID: %d | Nome: %s | Quantidade: %d\n",ids[j], nomes[j], estoque[j]);
+                System.out.printf("ID: %d | Nome: %s | Quantidade: %d\n", ids[j], nomes[j], estoque[j]);
             }
         }
         if (!itemEncontrado) {
-            System.out.println("Nenhum item esta com baixo estoque.");
+            System.out.println("Nenhum item está com baixo estoque.");
         }
     }
 
-        //Nota fiscal
-//    public static void emitirNotaFiscal(){
-//        System.out.println("*********************************************************************************************");
-//        System.out.printf("* %-90s*\n", "MACKSHOP");
- //       System.out.printf("* %-90s*\n", "CNPJ: 12.345.678/0001-99" );
- //       System.out.println("*********************************************************************************************");
- //       System.out.printf("* %-90s*\n", "NOTA FISCAL - VENDA AO CONSUMIDOR");
-  //      System.out.printf("* %-90s*\n", "Pedido ID: " + pedidoId);
- //       System.out.printf("* %-90s*\n", "Data de Emissão:  01/09/2025 15:15:30 ");
-  //      System.out.println("*********************************************************************************************");
- //       System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-12s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
-   //     System.out.println("-----------------------------------------------------------------------------------------------------------");
- //       //Colocar isso dentro do for quando o metodo historico for criado
- //           System.out.printf("* %-2d| %-5d| %-20s| %-5d| R$ %-8.2f| R$ %-8.2f*\n", 1, id, nome, quantidade, preco, totalProduto);
- //       System.out.println("-----------------------------------------------------------------------------------------------------------");
- //       System.out.printf("* %-76sR$ %-8.2f *\n", "SUBTOTAL", subtotal);
-  //      System.out.printf("* %-76sR$ %-8.2f *\n", "TOTAL", total);
-  //      System.out.println("*********************************************************************************************");
-  //      System.out.println("*********************************************************************************************");
-  //  }
+    //(admin)  Relatório de estoque baixo
+    public static void imprimirNotaFiscal(int pedidoId, double total, int[] vendaAtualIds, int[] vendaAtualQuantidades, int[] idsCatalogo, String[] nomesCatalogo, double[] precosCatalogo){
+        System.out.println("\n*********************************************************************************************");
+        System.out.printf("* %-90s*\n", "MACKSHOP");
+        System.out.printf("* %-90s*\n", "CNPJ: 12.345.678/0001-99" );
+        System.out.println("*********************************************************************************************");
+        System.out.printf("* %-90s*\n", "NOTA FISCAL - VENDA AO CONSUMIDOR");
+        System.out.printf("* %-90s*\n", "Pedido ID: " + pedidoId);
+
+        System.out.printf("* %-90s*\n", "Data de Emissão: 01/09/2025 15:15:30");
+
+        System.out.println("*********************************************************************************************");
+        System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-12s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
+
+        int numeroItem = 1;
+        for(int i = 0; i < vendaAtualIds.length; i++){
+            if(vendaAtualIds[i] != 0){
+                int produtoId = vendaAtualIds[i];
+                int quantidade = vendaAtualQuantidades[i];
+
+                for(int j = 0; j < idsCatalogo.length; j++){
+                    if(idsCatalogo[j] == produtoId){
+                        String nomeProduto = nomesCatalogo[j];
+                        double precoUnitario = precosCatalogo[j];
+                        double subtotalItem = precoUnitario * quantidade;
+
+                        System.out.printf("* %-2d| %-5d| %-20s| %-5d| R$ %-8.2f| R$ %-8.2f*\n", numeroItem, produtoId, nomeProduto, quantidade, precoUnitario, subtotalItem);
+                        numeroItem++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
+        System.out.printf("* %-76sR$ %-8.2f *\n", "TOTAL", total);
+        System.out.println("*********************************************************************************************");
+    }
 }
 
