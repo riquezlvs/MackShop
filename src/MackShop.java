@@ -42,6 +42,7 @@ public class MackShop {
 
         do {
             System.out.println("--================== MENU ==================--");
+            System.out.println("->Obrigatório inicializar base antes de navegar!<- ");
             System.out.println("1. Inicializar base");
             System.out.println("2. Exibir catálogo de produtos");
             System.out.println("3. Adicionar item à venda");
@@ -109,31 +110,31 @@ public class MackShop {
                                       int[] vendaAtualIds, int[] vendaAtualQuantidades,
                                       int[] historicoIdsPedidos, double[] historicoValoresPedidos, int[][] historicoItensVendidos) {
 
-        ids[0] = 0;
+        ids[0] = 1;
         nomes[0] = "Camiseta";
         precos[0] = 49.90;
         estoque[0] = 20;
 
 
-        ids[1] = 1;
+        ids[1] = 2;
         nomes[1] = "Calça Jeans";
         precos[1] = 120.00;
         estoque[1] = 15;
 
 
-        ids[2] = 2;
+        ids[2] = 3;
         nomes[2] = "Tênis Esportivo";
         precos[2] = 250.00;
         estoque[2] = 10;
 
 
-        ids[3] = 3;
+        ids[3] = 4;
         nomes[3] = "Moletom com Capuz";
         precos[3] = 95.50;
         estoque[3] = 8;
 
 
-        ids[4] = 4;
+        ids[4] = 5;
         nomes[4] = "Meia Esportiva (par)";
         precos[4] = 15.00;
         estoque[4] = 50;
@@ -388,7 +389,7 @@ public class MackShop {
 
         System.out.println("*********************************************************************************************");
         System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-12s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
-        System.out.println("-----------------------------------------------------------------------------------------------------------");
+        System.out.println("---------------------------------------------------------------------------------------------");
 
         int numeroItem = 1;
         for(int i = 0; i < vendaAtualIds.length; i++){
@@ -410,7 +411,7 @@ public class MackShop {
             }
         }
 
-        System.out.println("-----------------------------------------------------------------------------------------------------------");
+        System.out.println("---------------------------------------------------------------------------------------------");
         System.out.printf("* %-76sR$ %-8.2f *\n", "TOTAL", total);
         System.out.println("*********************************************************************************************");
     }
