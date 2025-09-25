@@ -317,20 +317,30 @@ public class MackShop {
                 System.out.println("Valor Total: R$ " + historicoValoresPedidos[i]);
                 System.out.println("Itens:");
 
+                // Primeiro contamos quantos itens tem esse pedido no histórico para criar arrays temporários
+                int countItens = 0;
                 for (int j = 0; j < historicoItensVendidos.length; j++) {
                     if (historicoItensVendidos[j][0] == idPedidoBusca) {
-                        int idProdutoVendido = historicoItensVendidos[j][1];
-                        int quantidadeVendida = historicoItensVendidos[j][2];
-
-                        for (int k = 0; k < idsCatalogo.length; k++) {
-                            if (idsCatalogo[k] == idProdutoVendido) {
-                                double precoItem = precosCatalogo[k];
-                                System.out.printf("  - %s (ID: %d) | Qtd: %d | Subtotal: R$ %.2f\n", nomesCatalogo[k], idProdutoVendido, quantidadeVendida, precoItem * quantidadeVendida);
-                                break;
-                            }
-                        }
+                        countItens++;
                     }
                 }
+
+                // Criamos arrays temporários para ids e quantidades
+                int[] vendaIdsTemporario = new int[countItens];
+                int[] vendaQuantidadesTemporario = new int[countItens];
+
+                int idx = 0;
+                for (int j = 0; j < historicoItensVendidos.length; j++) {
+                    if (historicoItensVendidos[j][0] == idPedidoBusca) {
+                        vendaIdsTemporario[idx] = historicoItensVendidos[j][1];
+                        vendaQuantidadesTemporario[idx] = historicoItensVendidos[j][2];
+                        idx++;
+                    }
+                }
+
+                // Chama imprimirNotaFiscal usando os arrays temporários
+                imprimirNotaFiscal(idPedidoBusca, historicoValoresPedidos[i], vendaIdsTemporario, vendaQuantidadesTemporario, idsCatalogo, nomesCatalogo, precosCatalogo);
+
                 System.out.println("----------------------------------------");
                 break;
             }
@@ -339,6 +349,7 @@ public class MackShop {
             System.out.println("Pedido com ID " + idPedidoBusca + " não encontrado no histórico.");
         }
     }
+
 
     //(admin) Repor Estoque
     public static void reporEstoque(Scanner scanner, int[] id, int[] estoque){
@@ -388,7 +399,7 @@ public class MackShop {
         System.out.printf("* %-90s*\n", "Data de Emissão: 01/09/2025 15:15:30");
 
         System.out.println("*********************************************************************************************");
-        System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-12s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
+        System.out.printf("* %-2s| %-5s| %-20s| %-5s| %-12s| %-36s*\n", "#", "ID", "DESCRIÇÃO", "QTD", "VL. UNIT.", "VL. TOTAL");
         System.out.println("---------------------------------------------------------------------------------------------");
 
         int numeroItem = 1;
@@ -403,7 +414,7 @@ public class MackShop {
                         double precoUnitario = precosCatalogo[j];
                         double subtotalItem = precoUnitario * quantidade;
 
-                        System.out.printf("* %-2d| %-5d| %-20s| %-5d| R$ %-8.2f| R$ %-8.2f*\n", numeroItem, produtoId, nomeProduto, quantidade, precoUnitario, subtotalItem);
+                        System.out.printf("* %-2d| %-5d| %-20s| %-5d| R$ %-8.2f| R$ %12.2f                      * \n", numeroItem, produtoId, nomeProduto, quantidade, precoUnitario, subtotalItem);
                         numeroItem++;
                         break;
                     }
@@ -412,8 +423,9 @@ public class MackShop {
         }
 
         System.out.println("---------------------------------------------------------------------------------------------");
-        System.out.printf("* %-76sR$ %-8.2f *\n", "TOTAL", total);
+        System.out.printf("* %-74s R$ %-12.2f*\n", "TOTAL", total);
         System.out.println("*********************************************************************************************");
+
     }
 }
 
